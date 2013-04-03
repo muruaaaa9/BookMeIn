@@ -1,0 +1,13 @@
+﻿.FixedContainer
+{
+  float:right;
+  height: 250px;
+  width:500px; 
+  padding:3px; 
+   overflow:auto;
+}
+.FixedContent
+{
+  height:224px;
+   overflow:auto;
+}

@@ -1,0 +1,111 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Site";
+   
+}
+
+<html>
+    <h2>Managing Site</h2>
+    <head>
+        <script src="~/Scripts/jquery-1.9.1.js"></script>
+        <script src="~/Scripts/knockout-2.2.1.js"></script>
+        <script src="~/Scripts/knockout.mapping-latest.js"></script>
+        <link href="~/Content/BookMeIn.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div>@Html.ActionLink("Home","Index","Home")</div>
+        <form>
+            <table>
+                <tr>
+                    <td>
+                        <table id="tbldml">
+                            <tr><td>Site Id</td><td><input type="text" id="txtSiteId" data-bind="value: $root.SiteId" disabled="disabled" /></td></tr>
+                            <tr><td>Site Name</td><td><input type="text" id="txtSiteName" data-bind="value: $root.SiteName"/></td></tr>
+                            <tr>
+                                <td><button data-bind="click:$root.save">Save</button></td>
+                                <td><button data-bind="click:$root.update">Update</button></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <div class="FixedContainer">
+                            <table style="border: double">
+                                <thead>
+                                    <tr>
+                                        <td>Site Id</td>
+                                        <td>Site Name</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: Sites">
+                                    <tr style="border: solid" data-bind="click: $root.getSelectedSite" id="updTr">
+                                        <td><span data-bind="text: SiteId"></span></td>
+                                        <td><span data-bind="text: SiteName"></span></td>
+                                        <td><button data-bind="click:$root.deletesite">Delete</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        
+        <script type="text/javascript">
+            var SiteModel = function () {
+                var self = this;
+                self.SiteId = ko.observable("0");
+                self.SiteName = ko.observable("");
+
+                self.Sites = ko.observableArray([]);
+
+                var siteData = {
+                    SiteId: self.SiteId,
+                    SiteName: self.SiteName
+                };
+
+                getSites();
+                
+                function getSites() {
+                    $.ajax({
+                        type:"GET",
+                        url: "api/SiteAPI/",
+                        contentType: "application/json; charset=utf-8",
+                        datatype: "json",
+                        success: function(data) {
+                            self.Sites(data);
+                        },
+                        error:function(error) {
+                            alert(error.status + "<--and-->" + error.statusText);
+                        }
+                    });
+                    
+                }
+
+                self.getSelectedSite = function (site) {
+                    self.SiteId(site.SiteId);
+                    self.SiteName(site.SiteName);
+                };
+
+                self.save = function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/SiteAPI",
+                        data: ko.toJSON(siteData),
+                        contentType: "application/json",
+                        sucess:function(data) {
+                            alert('Site added successfully');
+                            self.SiteId(data.SiteId);
+                            //alert('The New Site Name :' + self.SiteName());
+                            getSites();
+                        },
+                    });
+                    
+                };
+            };
+            ko.applyBindings(new SiteModel);
+        </script>
+
+    </body>
+</html>
